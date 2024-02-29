@@ -10,6 +10,8 @@ import {
   View,
   StyleSheet,
   Text,
+  TextInput,
+  Pressable,
   useColorScheme,
 } from 'react-native';
 import {
@@ -34,6 +36,8 @@ export const HomeScreen = ({children}: Props) => {
   const insets = useSafeAreaInsets();
 
   const [isLoading, setLoading] = React.useState(false);
+  const [lat, setLat] = React.useState<number>();
+  const [lon, setLon] = React.useState<number>();
   const [currentWeather, setCurrentWeather] = React.useState<Weather | null>(
     null,
   );
@@ -50,10 +54,14 @@ export const HomeScreen = ({children}: Props) => {
     }
 
     const {coords} = position;
+    setLat(coords.latitude);
+    setLon(coords.longitude);
     await getWeather(coords.latitude, coords.longitude);
   }
 
-  async function getWeather(lat: number, lon: number) {
+  async function getWeather(lat?: number, lon?: number) {
+    if (!lat || !lon) return;
+
     setLoading(true);
     const current = await Weather.fetchCurrentWeather(lat, lon);
     setCurrentWeather(current);
@@ -72,74 +80,122 @@ export const HomeScreen = ({children}: Props) => {
           paddingBottom: insets.bottom,
           paddingLeft: insets.left,
           paddingRight: insets.right,
+          backgroundColor: '#F9F8F4',
         },
       ]}>
-      {isLoading ? (
-        <Text
-          style={[
-            styles.sectionTitle,
-            {
-              color: isDarkMode ? Colors.black : Colors.black,
-            },
-          ]}>
-          Please wait...
-        </Text>
-      ) : (
-        <></>
-      )}
-      {currentWeather ? (
-        <>
+      <View
+        style={{flexDirection: 'row', paddingHorizontal: 10, marginTop: 10}}>
+        <TextInput
+          style={{flex: 1, borderWidth: 1, padding: 10, borderRadius: 10}}
+          keyboardType="number-pad"
+          placeholder="Latitude"
+          value={`${lat ?? ''}`}
+          onChangeText={value => setLat(parseFloat(value))}
+        />
+        <TextInput
+          style={{
+            flex: 1,
+            marginHorizontal: 10,
+            borderWidth: 1,
+            padding: 10,
+            borderRadius: 10,
+          }}
+          keyboardType="number-pad"
+          placeholder="Longitude"
+          value={`${lon ?? ''}`}
+          onChangeText={value => setLon(parseFloat(value))}
+        />
+        <Pressable
+          style={{
+            backgroundColor: Colors.green,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={() => getWeather(lat, lon)}>
           <Text
             style={[
               styles.sectionTitle,
               {
                 color: isDarkMode ? Colors.black : Colors.black,
+                textAlign: 'center',
               },
             ]}>
-            Current Weather
+            Search
           </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              {
-                color: isDarkMode ? Colors.black : Colors.black,
-              },
-            ]}>
-            Temp: {currentWeather.temperature2m}, Rainny:{' '}
-            {currentWeather.rain ? 'Yes' : 'No'}
-          </Text>
-        </>
-      ) : (
-        <></>
-      )}
-      {dailyWeathers.length > 0 ? (
-        <>
+        </Pressable>
+      </View>
+      <View style={{paddingHorizontal: 10, marginTop: 10}}>
+        {isLoading ? (
           <Text
             style={[
               styles.sectionTitle,
               {
                 color: isDarkMode ? Colors.black : Colors.black,
+                textAlign: 'center',
               },
             ]}>
-            Daily Weather
+            Please wait...
           </Text>
-          {dailyWeathers.map((x, i) => (
+        ) : (
+          <></>
+        )}
+        {currentWeather ? (
+          <>
             <Text
-              key={i}
+              style={[
+                styles.sectionTitle,
+                {
+                  color: isDarkMode ? Colors.black : Colors.black,
+                  textAlign: 'center',
+                },
+              ]}>
+              Current Weather
+            </Text>
+            <Text
               style={[
                 styles.subtitle,
                 {
                   color: isDarkMode ? Colors.black : Colors.black,
                 },
               ]}>
-              {x.time?.toISOString()} : {x.temperature2mMin} -{' '}
-              {x.temperature2mMax}
+              Temp: {currentWeather.temperature2m}, Rainny:{' '}
+              {currentWeather.rain ? 'Yes' : 'No'}
             </Text>
-          ))}
-        </>
-      ) : (
-        <></>
-      )}
+          </>
+        ) : (
+          <></>
+        )}
+        {dailyWeathers.length > 0 ? (
+          <>
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  color: isDarkMode ? Colors.black : Colors.black,
+                  marginTop: 10,
+                  textAlign: 'center',
+                },
+              ]}>
+              Daily Weather
+            </Text>
+            {dailyWeathers.map((x, i) => (
+              <Text
+                key={i}
+                style={[
+                  styles.subtitle,
+                  {
+                    color: isDarkMode ? Colors.black : Colors.black,
+                  },
+                ]}>
+                {x.time?.toISOString()} : {x.temperature2mMin} -{' '}
+                {x.temperature2mMax}
+              </Text>
+            ))}
+          </>
+        ) : (
+          <></>
+        )}
+      </View>
     </View>
   );
 };
@@ -151,18 +207,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.red,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600',
   },
   subtitle: {
     fontSize: 16,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
 });
