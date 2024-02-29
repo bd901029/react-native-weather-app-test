@@ -22,6 +22,7 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.12",
     "@react-navigation/native-stack": "^6.9.20",
+    "class-transformer": "^0.5.1",
     "react": "18.2.0",
     "react-native": "0.73.5",
     "react-native-geolocation-service": "^5.3.1",
