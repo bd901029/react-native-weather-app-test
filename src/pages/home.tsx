@@ -19,14 +19,25 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import {fetchWeatherApi} from 'openmeteo';
 
 import {Geolocation} from '../services';
+import {Weather} from '../core/models';
+
+const range = (start: number, stop: number, step: number) =>
+  Array.from({length: (stop - start) / step}, (_, i) => start + i * step);
 
 type Props = PropsWithChildren<{}>;
 
 export const HomeScreen = ({children}: Props) => {
   const isDarkMode = useColorScheme() === 'dark';
   const insets = useSafeAreaInsets();
+
+  const [isLoading, setLoading] = React.useState(false);
+  const [currentWeather, setCurrentWeather] = React.useState<Weather | null>(
+    null,
+  );
+  const [dailyWeathers, setDailyWeathers] = React.useState<Array<Weather>>([]);
 
   React.useEffect(() => {
     getGeolocation();
@@ -39,7 +50,17 @@ export const HomeScreen = ({children}: Props) => {
     }
 
     const {coords} = position;
-    console.log({coords});
+    await getWeather(coords.latitude, coords.longitude);
+  }
+
+  async function getWeather(lat: number, lon: number) {
+    setLoading(true);
+    const current = await Weather.fetchCurrentWeather(lat, lon);
+    setCurrentWeather(current);
+
+    const daily = await Weather.fetchDaily(lat, lon);
+    setDailyWeathers(daily);
+    setLoading(false);
   }
 
   return (
@@ -53,15 +74,72 @@ export const HomeScreen = ({children}: Props) => {
           paddingRight: insets.right,
         },
       ]}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.black : Colors.black,
-          },
-        ]}>
-        Welcome
-      </Text>
+      {isLoading ? (
+        <Text
+          style={[
+            styles.sectionTitle,
+            {
+              color: isDarkMode ? Colors.black : Colors.black,
+            },
+          ]}>
+          Please wait...
+        </Text>
+      ) : (
+        <></>
+      )}
+      {currentWeather ? (
+        <>
+          <Text
+            style={[
+              styles.sectionTitle,
+              {
+                color: isDarkMode ? Colors.black : Colors.black,
+              },
+            ]}>
+            Current Weather
+          </Text>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                color: isDarkMode ? Colors.black : Colors.black,
+              },
+            ]}>
+            Temp: {currentWeather.temperature2m}, Rainny:{' '}
+            {currentWeather.rain ? 'Yes' : 'No'}
+          </Text>
+        </>
+      ) : (
+        <></>
+      )}
+      {dailyWeathers.length > 0 ? (
+        <>
+          <Text
+            style={[
+              styles.sectionTitle,
+              {
+                color: isDarkMode ? Colors.black : Colors.black,
+              },
+            ]}>
+            Daily Weather
+          </Text>
+          {dailyWeathers.map((x, i) => (
+            <Text
+              key={i}
+              style={[
+                styles.subtitle,
+                {
+                  color: isDarkMode ? Colors.black : Colors.black,
+                },
+              ]}>
+              {x.time?.toISOString()} : {x.temperature2mMin} -{' '}
+              {x.temperature2mMax}
+            </Text>
+          ))}
+        </>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -75,6 +153,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
+  },
+  subtitle: {
+    fontSize: 16,
   },
   sectionDescription: {
     marginTop: 8,

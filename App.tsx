@@ -53,7 +53,7 @@ function App(): React.JSX.Element {
           <Stack.Screen
             name={routes.Home}
             component={HomeScreen}
-            options={{title: 'Welcome'}}
+            options={{title: 'Weather'}}
           />
         </Stack.Navigator>
       </NavigationContainer>
