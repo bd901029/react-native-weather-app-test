@@ -20,11 +20,28 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import {Geolocation} from '../services';
+
 type Props = PropsWithChildren<{}>;
 
 export const HomeScreen = ({children}: Props) => {
   const isDarkMode = useColorScheme() === 'dark';
   const insets = useSafeAreaInsets();
+
+  React.useEffect(() => {
+    getGeolocation();
+  }, []);
+
+  async function getGeolocation() {
+    const {error, position} = await Geolocation.getLocation();
+    if (!position) {
+      return;
+    }
+
+    const {coords} = position;
+    console.log({coords});
+  }
+
   return (
     <View
       style={[
