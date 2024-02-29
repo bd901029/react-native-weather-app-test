@@ -107,16 +107,18 @@ export const HomeScreen = ({children}: Props) => {
         />
         <Pressable
           style={{
-            backgroundColor: Colors.green,
+            backgroundColor: '#E42B76',
             alignItems: 'center',
             justifyContent: 'center',
+            paddingHorizontal: 8,
+            borderRadius: 8,
           }}
           onPress={() => getWeather(lat, lon)}>
           <Text
             style={[
               styles.sectionTitle,
               {
-                color: isDarkMode ? Colors.black : Colors.black,
+                color: isDarkMode ? Colors.white : Colors.white,
                 textAlign: 'center',
               },
             ]}>
@@ -139,7 +141,7 @@ export const HomeScreen = ({children}: Props) => {
         ) : (
           <></>
         )}
-        {currentWeather ? (
+        {!isLoading && currentWeather ? (
           <>
             <Text
               style={[
@@ -156,6 +158,11 @@ export const HomeScreen = ({children}: Props) => {
                 styles.subtitle,
                 {
                   color: isDarkMode ? Colors.black : Colors.black,
+                  backgroundColor: '#FFFFFF',
+                  padding: 10,
+                  borderWidth: 1,
+                  borderRadius: 4,
+                  marginTop: 10,
                 },
               ]}>
               Temp: {currentWeather.temperature2m}, Rainny:{' '}
@@ -165,7 +172,7 @@ export const HomeScreen = ({children}: Props) => {
         ) : (
           <></>
         )}
-        {dailyWeathers.length > 0 ? (
+        {!isLoading && dailyWeathers.length > 0 ? (
           <>
             <Text
               style={[
@@ -178,19 +185,37 @@ export const HomeScreen = ({children}: Props) => {
               ]}>
               Daily Weather
             </Text>
-            {dailyWeathers.map((x, i) => (
-              <Text
-                key={i}
-                style={[
-                  styles.subtitle,
-                  {
-                    color: isDarkMode ? Colors.black : Colors.black,
-                  },
-                ]}>
-                {x.time?.toISOString()} : {x.temperature2mMin} -{' '}
-                {x.temperature2mMax}
-              </Text>
-            ))}
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                padding: 10,
+                borderWidth: 1,
+                borderRadius: 4,
+                marginTop: 10,
+              }}>
+              {dailyWeathers.map((x, i) => (
+                <Text
+                  key={i}
+                  style={[
+                    styles.subtitle,
+                    {
+                      color: isDarkMode ? Colors.black : Colors.black,
+                      marginTop: i === 0 ? 0 : 4,
+                    },
+                  ]}>
+                  {x.time?.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                  :{' '}
+                  <Text style={{color: '#E42B76'}}>
+                    min. {x.temperature2mMin}℃, max. {x.temperature2mMax}℃
+                  </Text>
+                </Text>
+              ))}
+            </View>
           </>
         ) : (
           <></>
