@@ -6,5 +6,7 @@ This is a sample React Native app to show current & next 3 days weather forest, 
 Please check following screenshots:
 
 
-![Screenshot_20240301-025539](https://github.com/bd901029/react-native-weather-app-test/assets/46511221/1458c00e-33de-4175-af88-98d8ef2845b9)
 ![Screenshot_20240301-025516](https://github.com/bd901029/react-native-weather-app-test/assets/46511221/95103844-8da0-4c61-9ea6-d32a79ec01eb)
+
+
+![Screenshot_20240301-025539](https://github.com/bd901029/react-native-weather-app-test/assets/46511221/1458c00e-33de-4175-af88-98d8ef2845b9)
